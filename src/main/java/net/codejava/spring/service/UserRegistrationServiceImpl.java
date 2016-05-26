@@ -1,6 +1,7 @@
 package net.codejava.spring.service;
 
-import java.awt.font.NumericShaper;
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import net.codejava.spring.dao.UserServiceDao;
 import net.codejava.spring.model.BmiDetail;
+import net.codejava.spring.model.Nutrition;
 import net.codejava.spring.model.User;
 
 @Service("userRegistrationService")
@@ -18,17 +20,23 @@ public class UserRegistrationServiceImpl implements UserRegistrationService{
 	UserServiceDao userServiceDao;
 	
 	@Override
-	public int submitUser(User user) {
-		calculateHeight(user);
-		calculateBMI(user);
-		userServiceDao.insertRegistrationDetail(user);
+	public int submitUser(User user) 
+	{
+		try{
+			calculateHeight(user);
+			calculateBMI(user);
+			userServiceDao.insertRegistrationDetail(user);
+				
+		}catch(Exception e){
+			
+		}
 		return 0;
 	}
 	
 	private void calculateHeight(User user){
 		int ft=Integer.parseInt(user.getHeightft());
 		int inch=Integer.parseInt(user.getHeightinch());
-		double totalheight=(inch+(ft*12))*0.025;
+		double totalheight=(inch+(ft*12))*0.0254;
 		user.setHeight(String.valueOf(totalheight));
 	}
 	private void calculateBMI(User user){
@@ -61,19 +69,47 @@ public class UserRegistrationServiceImpl implements UserRegistrationService{
 		
 		bmiDetail.setCategory(category);
 		bmiDetail.setLevel(level);
-		
+		double bmr=0;
 		
 				user.setBmiDetail(bmiDetail);
+				
+				int age=Integer.parseInt(user.getAge());
+				double heightcm=height*100;
+					if(user.getGender().equals("Male")||user.getGender()=="Male"){
+					bmr=10*weight+(6.25*heightcm-(5*age)+5);
+				}else{
+					bmr=10*weight+(6.25*heightcm-(5*age)-161);
+				}
+					bmiDetail.setBmr(String.valueOf(bmr));
 	}
 
 	@Override
 	public boolean verifyUser(String userName) {
 		User user=userServiceDao.fetchBMIDetail(userName);
 		if(user!=null){
-			return false;
-		}else{
 			return true;
+		}else{
+			return false;
 		}
+	}
+
+	@Override
+	public List<String> fetchFoodType(String foodType) {
+		// TODO Auto-generated method stub
+		return userServiceDao.fetchNutritionBreakfastMenu(foodType);
+	}
+
+	@Override
+	public Nutrition fetchcalories(String foodType) {
+	
+		return userServiceDao.fetchNutionChart(foodType);
+	}
+
+	@Override
+	public String caluculateBMR(User user) {
+		return null;
+		
+
 	}
 
 }

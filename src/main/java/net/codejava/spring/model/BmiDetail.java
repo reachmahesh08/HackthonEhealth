@@ -1,5 +1,7 @@
 package net.codejava.spring.model;
 
+import java.util.List;
+
 public class BmiDetail {
 	private String userName;
 	private String age;
@@ -7,6 +9,18 @@ public class BmiDetail {
 	private String level;
 	private String percentile;
 	private String category;
+	
+	private String foodType;
+	private String bmr;
+	
+	
+	
+	public String getBmr() {
+		return bmr;
+	}
+	public void setBmr(String bmr) {
+		this.bmr = bmr;
+	}
 	
 	public String getCategory() {
 		return category;

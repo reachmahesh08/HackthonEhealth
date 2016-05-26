@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import net.codejava.spring.model.User;
@@ -43,11 +44,13 @@ public class RegisterController {
 		User userForm = new User();		
 		model.put("userForm", userForm);
 		
-		List<String> genderList = new ArrayList<String>();
-		genderList.add("Male");
-		genderList.add("Female");
-		model.put("genderList", genderList);
 		
+		populateModel(model);
+		
+		
+		return "Registration";
+	}
+	private void populateModel(Map<String, Object> model){
 		List<String> heightfeetList = new ArrayList<String>();
 		for(int i=1;i<=12;i++){
 			heightfeetList.add(String.valueOf(i));
@@ -59,28 +62,30 @@ public class RegisterController {
 			heightinchList.add(String.valueOf(i));
 		}
 		model.put("heightinchList", heightinchList);
-		
-		return "Registration";
+		List<String> genderList = new ArrayList<String>();
+		genderList.add("Male");
+		genderList.add("Female");
+		model.put("genderList", genderList);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
 	public String processRegistration(@Valid @ModelAttribute("userForm") User user,BindingResult result ,
-			Map<String, Object> model) {
-		if(result.hasErrors()){
+			Map<String, Object> model, HttpSession session) {
+		if (result.hasErrors()) {
+			populateModel(model);
 			return "Registration";
+		}else		
+		if (userRegistrationService.verifyUser(user.getUsername())) {
+			result.rejectValue("erroralreadyExist", "erroralreadyExist.error",
+					"User Name Already Exist");
+			populateModel(model);
+			return "Registration";
+		} else {
+			userRegistrationService.submitUser(user);
+			session.setAttribute("userForm", user);
 		}
-		/*if(userRegistrationService.verifyUser(user.getUsername())){
-			result.reject("User already exists");
-			
-			return "Registration";
-		}*/
-		
-				
-		userRegistrationService.submitUser(user);
-		
-	
-		
-		return "RegistrationSuccess";
+
+		return "redirect:RegistrationSuccess";
 	}
 	@ExceptionHandler(Exception.class)
 	  public ModelAndView handleError(HttpServletRequest req, Exception exception) {

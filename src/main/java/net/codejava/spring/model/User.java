@@ -24,12 +24,21 @@ public class User {
 	private String heightft;
 	private String heightinch;
 	private BmiDetail bmiDetail;
-	@NotEmpty
+		
 	private String height;
+	private String erroralreadyExist;
 	
 	
 
-	public String getHeight() {
+		public String getErroralreadyExist() {
+		return erroralreadyExist;
+	}
+
+	public void setErroralreadyExist(String erroralreadyExist) {
+		this.erroralreadyExist = erroralreadyExist;
+	}
+
+		public String getHeight() {
 		return height;
 	}
 

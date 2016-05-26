@@ -6,16 +6,17 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import net.codejava.spring.model.BmiDetail;
+import net.codejava.spring.model.Nutrition;
+import net.codejava.spring.model.User;
+import net.codejava.spring.model.UserLogin;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
-import net.codejava.spring.model.BmiDetail;
-import net.codejava.spring.model.User;
-import net.codejava.spring.model.UserLogin;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -90,26 +91,32 @@ private int selectMaxNoFromTable(String sql){
 	return id;
 }
 	@Override
-	public int insertRegistrationDetail(User user) {
+	@Transactional(readOnly=false,propagation=Propagation.REQUIRES_NEW)
+	public int insertRegistrationDetail(User user) throws Exception{
+		try{
+			String selectsql_user="SELECT MAX(ID)+1 FROM USER";
+			String selectsql_bmi="select (max(id)+1) from bmi_chart";
+			int userid=selectMaxNoFromTable(selectsql_user);
+			int bmiId=selectMaxNoFromTable(selectsql_bmi);
+			String sql="INSERT INTO USER "
+					+ "(`ID`, `USERNAME`, `PASSWORD`, `EMAIL`, `GENDER`, `AGE`, `WEIGHT`, `HEIGHT`) "
+					+ "VALUES ("+userid+",'"+user.getUsername()+"', '"+user.getPassword()+"', '"+user.getEmail()
+					+"', '"+user.getGender()+"', "+user.getAge()+","+user.getWeight()+" ,'"+user.getHeight()+"')";
+			
+			int i=jdbcTemplate.update(sql);
+			
+			BmiDetail bmiDetail=user.getBmiDetail();
+			String sql2="INSERT INTO BMI_CHART "
+					+ "(`ID`, `USER_ID`, `BMI`, `LEVEL`, `CATEGORY`, `PERCENTILE`,BMR)"
+					+ " VALUES ("+bmiId+","+userid+", "+bmiDetail.getBmi()+", "+bmiDetail.getLevel()+", '"+bmiDetail.getCategory()+"', 0,'"+bmiDetail.getBmr()+"')";
+			int i1=jdbcTemplate.update(sql2);
+			return 0;
+		}catch(Exception e){
+			throw new Exception("Error while inserting "+e);
+		}
 		
-		String selectsql_user="SELECT MAX(ID)+1 FROM USER";
-		String selectsql_bmi="select (max(id)+1) from bmi_chart";
-		int userid=selectMaxNoFromTable(selectsql_user);
-		int bmiId=selectMaxNoFromTable(selectsql_bmi);
-		String sql="INSERT INTO USER "
-				+ "(`ID`, `USERNAME`, `PASSWORD`, `EMAIL`, `GENDER`, `AGE`, `WEIGHT`, `HEIGHT`) "
-				+ "VALUES ("+userid+",'"+user.getUsername()+"', '"+user.getPassword()+"', '"+user.getEmail()
-				+"', '"+user.getGender()+"', "+user.getAge()+","+user.getWeight()+" ,'"+user.getHeight()+"')";
 		
-		int i=jdbcTemplate.update(sql);
 		
-		BmiDetail bmiDetail=user.getBmiDetail();
-		String sql2="INSERT INTO BMI_CHART "
-				+ "(`ID`, `USER_ID`, `BMI`, `LEVEL`, `CATEGORY`, `PERCENTILE`)"
-				+ " VALUES ("+bmiId+","+userid+", "+bmiDetail.getBmi()+", "+bmiDetail.getLevel()+", '"+bmiDetail.getCategory()+"', 0)";
-		int i1=jdbcTemplate.update(sql2);
-		
-		return 0;
 		// TODO Auto-generated method stub
 		
 	}
@@ -117,7 +124,7 @@ private int selectMaxNoFromTable(String sql){
 
 	@Override
 	public User fetchBMIDetail(String name) {
-		String sql="select u.username,bmi.bmi,bmi.category from "
+		String sql="select u.username,bmi.bmi,bmi.category,u.gender,u.age,u.weight,u.height,bmi.bmr from "
 				+ "user u,bmi_chart bmi where u.id=bmi.user_id and u.username='"+name+"'";
 		List<User> list = jdbcTemplate.query(sql,
 				new RowMapper<User>() {
@@ -125,12 +132,16 @@ private int selectMaxNoFromTable(String sql){
 					@Override
 					public User mapRow(ResultSet rs, int rowNum)
 							throws SQLException {
-						System.out.print("User Name in Mapper"+rs.getString("USERNAME"));
 						User user = new User();
 						BmiDetail bmi=new BmiDetail();
 						user.setUsername(rs.getString("USERNAME"));
+						user.setAge(rs.getString("AGE"));
+						user.setWeight(rs.getString("WEIGHT"));
+						user.setHeight(rs.getString("HEIGHT"));
+						user.setGender(rs.getString("GENDER"));
 						bmi.setBmi(rs.getString("bmi"));
 						bmi.setCategory("category");
+						bmi.setBmr(rs.getString("bmr"));
 						user.setBmiDetail(bmi);
 
 						return user;
@@ -146,6 +157,56 @@ private int selectMaxNoFromTable(String sql){
 		
 		
 	}
+
+
+	@Override
+	public Nutrition fetchNutionChart(String foodType) {
+		try{
+			String sql="select CALORIES,fiber from nutrition where FOOD_TYPE='"+foodType+"'";
+			
+			Nutrition nutrition=null;
+			
+			List<Nutrition> nutritionList= jdbcTemplate.query(sql, new RowMapper<Nutrition>(){
+
+				@Override
+				public Nutrition mapRow(ResultSet rs, int arg1) throws SQLException {
+					Nutrition nutrition=new Nutrition();
+					nutrition.setCalories(rs.getString(1));
+					nutrition.setFiber(rs.getString(2));
+					return nutrition;
+				
+				}
+				
+			});
+			if(nutritionList!=null&&nutritionList.size()>0){
+				nutrition=nutritionList.get(0);
+			}
+			return nutrition ;
+			
+		}catch(Exception e){
+			return null;
+		}
+		
+	}
+
+
+	@Override
+	public List<String> fetchNutritionBreakfastMenu(String foodType) {
+		String sql="SELECT FOOD_TYPE FROM NUTRITION WHERE FOOD_CLASSIFICATION='"+foodType+"'";
+		return jdbcTemplate.query(sql, new RowMapper<String>(){
+
+			@Override
+			public String mapRow(ResultSet rs, int arg1) throws SQLException {
+				// TODO Auto-generated method stub
+				
+				return rs.getString(1);
+			
+			}
+			
+		});
+	}
+
+
 	
 
 }
