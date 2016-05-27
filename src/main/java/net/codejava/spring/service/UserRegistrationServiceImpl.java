@@ -3,14 +3,14 @@ package net.codejava.spring.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import net.codejava.spring.dao.UserServiceDao;
 import net.codejava.spring.model.BmiDetail;
 import net.codejava.spring.model.Nutrition;
 import net.codejava.spring.model.User;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 @Service("userRegistrationService")
 public class UserRegistrationServiceImpl implements UserRegistrationService{
@@ -19,6 +19,10 @@ public class UserRegistrationServiceImpl implements UserRegistrationService{
 	@Qualifier("userServiceDao")
 	UserServiceDao userServiceDao;
 	
+	public void setUserServiceDao(UserServiceDao userServiceDao) {
+		this.userServiceDao = userServiceDao;
+	}
+
 	@Override
 	public int submitUser(User user) 
 	{
