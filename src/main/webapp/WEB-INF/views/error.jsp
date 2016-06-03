@@ -8,7 +8,8 @@
 </head>
 <body>
 
-Error happened ! please Contact system administrator!
+<font size="11" color="red" style="font-weight: bold;">Error happened ! please Contact system administrator! 
+Following error Occured ${exception}</font>>
 
 </body>
 </html>

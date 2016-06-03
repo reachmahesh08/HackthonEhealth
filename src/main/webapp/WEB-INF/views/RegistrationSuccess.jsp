@@ -130,7 +130,7 @@ function addBreakfastFood(obj){
                                                 <tr>
                                                     <td>Total calories In take per Day</td>
                                                     <td>:</td>
-                                                    <td>${nutrition.userForm.bmiDetail.bmr}/day</td>
+                                                    <td>${nutrition.userForm.bmiDetail.bmr} Calories/day</td>
                                                 </tr>
                                                 
                                             </tbody>
@@ -166,7 +166,7 @@ function addBreakfastFood(obj){
                         <div class="panel-heading">
                             <h4 class="panel-title" style="margin-top: 10px; margin-bottom: 10px;">
         <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
-        BreakFast</a>
+        Starters/Soup</a>
       </h4>
                             <!--        <button class="btn btn-primary" type="button">Add <span class="glyphicon glyphicon-plus"></span></button>-->
                             <div class="pull-right btn-group btn-group-xs">
@@ -182,7 +182,7 @@ function addBreakfastFood(obj){
                                 <div class="table-responsive col-sm-8 col-lg-8">
                                     <table class="table" style="background-color:white">
                                         <thead>
-                                        <form:errors path="errorBreakfast" cssClass="error"/>
+                                       <font color="red" style="richness: inherit;"> ${warningBreakfast} </font>
                                             <tr>
                                             
                                                 <th>Food Name</th>
@@ -199,7 +199,7 @@ function addBreakfastFood(obj){
                                                    <form:select path="breaskfastList[${rowCount.index}].foodType" items="${breakfastfoodList}" cssStyle="width:40%;display:inline;" onchange="fetchCalories(${rowCount.index})"/>
                                                 </th>
                                                 <th>
-                                                   <form:select path="breaskfastList[${rowCount.index}].qty" items="${selectQtyList}" cssStyle="width:40%;display:inline;" onchange="fetchCalories(${rowCount.index})"/>
+                                                   <form:select path="breaskfastList[${rowCount.index}].qty" items="${selectQtyList}" cssStyle="width:80%;display:inline;" onchange="fetchCalories(${rowCount.index})"/>
                                                 </th>
                                                 <th>
                                                 <form:input path="breaskfastList[${rowCount.index}].calories"/>
@@ -233,7 +233,7 @@ function addBreakfastFood(obj){
                                 <div class="table-responsive col-sm-8 col-lg-8">
                                     <table class="table" style="background-color:white">
                                         <thead>
-                                        <form:errors path="errorLunch" cssClass="error"/>
+                                       <font color="red" style="richness: inherit;"> ${warningLunch}</font>
                                             <tr>
                                                 <th>Food Name</th>
                                                 <th>Quantity</th>
@@ -248,7 +248,7 @@ function addBreakfastFood(obj){
                                                   <form:select path="lunchList[${rowCount.index}].foodType" items="${lunchfoodlist}" cssStyle="width:40%;display:inline;" onchange="fetchCaloriesLunch(${rowCount.index})"/>
                                                 </th>
                                                 <th>
-                                                   <form:select path="lunchList[${rowCount.index}].qty" items="${selectQtyList}" cssStyle="width:40%;display:inline;" onchange="fetchCaloriesLunch(${rowCount.index})"/>
+                                                   <form:select path="lunchList[${rowCount.index}].qty" items="${selectQtyList}" cssStyle="width:80%;display:inline;" onchange="fetchCaloriesLunch(${rowCount.index})"/>
                                                 </th>
                                                 <th>
                                                 <form:input path="lunchList[${rowCount.index}].calories"/>
@@ -269,7 +269,7 @@ function addBreakfastFood(obj){
                         <div class="panel-heading">
                             <h4 class="panel-title" style="margin-top: 10px; margin-bottom: 10px;">
         <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
-        Dinner</a>
+        Deserts</a>
       </h4>
                             <div class="pull-right btn-group btn-group-xs">
                             
@@ -282,7 +282,7 @@ function addBreakfastFood(obj){
                                 <div class="table-responsive col-sm-8 col-lg-8">
                                     <table class="table" style="background-color:white">
                                         <thead>
-                                        <form:errors path="errorDinner" cssClass="error"/>
+                                      <font color="red" style="richness: inherit;">${warningDinner}</font>
                                             <tr>
                                                 <th>Food Name</th>
                                                 <th>Quantity</th>
@@ -297,7 +297,7 @@ function addBreakfastFood(obj){
                                                     <form:select path="dinnerList[${rowCount.index}].foodType" items="${dinnerfoodList}" cssStyle="width:40%;display:inline;" onchange="fetchCaloriesDinner(${rowCount.index})"/>
                                                 </th>
                                                     <th>
-                                                   <form:select path="dinnerList[${rowCount.index}].qty" items="${selectQtyList}" cssStyle="width:40%;display:inline;" onchange="fetchCaloriesDinner(${rowCount.index})"/>
+                                                   <form:select path="dinnerList[${rowCount.index}].qty" items="${selectQtyList}" cssStyle="width:80%;display:inline;" onchange="fetchCaloriesDinner(${rowCount.index})"/>
                                                 </th>
                                                 <th>
                                                 <form:input path="dinnerList[${rowCount.index}].calories"/>

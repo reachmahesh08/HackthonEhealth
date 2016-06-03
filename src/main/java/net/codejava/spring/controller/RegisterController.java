@@ -11,6 +11,8 @@ import javax.validation.Valid;
 import net.codejava.spring.model.User;
 import net.codejava.spring.service.UserRegistrationService;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
@@ -24,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping(value = "/register")
 public class RegisterController {
+	private static Logger LOGGER = LogManager.getLogger(RegisterController.class);
 
 	@Autowired
 	@Qualifier("userRegistrationService")
@@ -95,6 +98,7 @@ public class RegisterController {
 	    mav.addObject("exception", exception);
 	    mav.addObject("url", req.getRequestURL());
 	    mav.setViewName("error");
+	    LOGGER.error("Exception occured while registering:"+exception);
 	    return mav;
 	  }
 }

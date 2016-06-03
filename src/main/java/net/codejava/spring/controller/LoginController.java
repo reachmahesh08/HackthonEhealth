@@ -1,7 +1,5 @@
 package net.codejava.spring.controller;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,10 +10,11 @@ import net.codejava.spring.model.User;
 import net.codejava.spring.model.UserLogin;
 import net.codejava.spring.service.LoginService;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -23,9 +22,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+
 @Controller
 public class LoginController {
 	
+	
+	private static Logger LOGGER = LogManager.getLogger(LoginController.class);
 	
 	@Autowired
 	@Qualifier("loginService")
@@ -40,7 +42,7 @@ public class LoginController {
 	public String viewLoginForm(Map<String, Object> model) {
 		UserLogin loginform = new UserLogin();		
 		model.put("loginform", loginform);
-		
+		LOGGER.debug("Inside the Login form ");
 		
 		
 		return "login";
@@ -62,6 +64,7 @@ public class LoginController {
 						.getLoginDetail(loginform.getUserName());
 				model.put("userForm", user);
 				session.setAttribute("userForm", user);
+				LOGGER.debug("Registartion Success");
 			}
 
 		} catch (Exception e) {
@@ -79,6 +82,8 @@ public class LoginController {
 	    mav.addObject("exception", exception);
 	    mav.addObject("url", req.getRequestURL());
 	    mav.setViewName("error");
+	    LOGGER.error("Exception occured in login page:"+exception);
+	   
 	    return mav;
 	  }
 	public LoginService getLoginService() {

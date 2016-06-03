@@ -2,18 +2,19 @@ package net.codejava.spring.config;
 
 import javax.sql.DataSource;
 
-import net.codejava.spring.dao.UserServiceDao;
-import net.codejava.spring.dao.UserServiceDaoImpl;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.web.servlet.ViewResolver;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 @Configuration
@@ -34,24 +35,41 @@ public class MvcConfiguration extends WebMvcConfigurerAdapter{
 		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
 	}
 	
-	@Bean  
-  public ResourceBundleMessageSource messageSource() { 
-		ResourceBundleMessageSource source = new ResourceBundleMessageSource();  
-      source.setBasename("/resources/message.properties");  
-	        source.setUseCodeAsDefaultMessage(true);  
-	        return source;  
-	   } 
+	@Bean(name="messageSource")
+    public ReloadableResourceBundleMessageSource messageSource() {
+        ReloadableResourceBundleMessageSource resource = new ReloadableResourceBundleMessageSource();
+        resource.setBasename("resources/message.properties");
+        resource.setDefaultEncoding("UTF-8");
+        return resource;
+    }
 
-	/*@Bean
-    public DataSource getDataSource() {
+    @Bean
+    public LocaleChangeInterceptor localeChangeInterceptor() {
+        LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
+        localeChangeInterceptor.setParamName("language");
+        return localeChangeInterceptor;
+    }
+	private static Logger LOGGER = LogManager.getLogger(MvcConfiguration.class);
+	
+	@Bean
+	public DataSource getDataSource() {
+		LOGGER.trace("Initializing the Datasource");
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/eahealth");
+        dataSource.setUrl("jdbc:mysql://172.17.0.2:3306/eahealth");
         dataSource.setUsername("root");
-        dataSource.setPassword("my_sql_amit");
+        //dataSource.setPassword("my_sql_amit");
+        dataSource.setPassword("root");
          
         return dataSource;
 	
-}*/
-	
 }
+	@Bean
+	public JdbcTemplate getJdbcTemplate(){
+		JdbcTemplate jdbcTemplate=new JdbcTemplate(getDataSource());
+		return jdbcTemplate;
+	}
+
+}
+	
+

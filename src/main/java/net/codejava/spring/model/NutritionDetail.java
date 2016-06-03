@@ -12,10 +12,30 @@ public class NutritionDetail {
 	private String errorDinner;
 	private String errorLunch;
 	private String errorBreakfast;
+	private String warningDinner;
+	private String warningLunch;
+	private String warningBreakfast;
 	
 	
 	
-	
+	public String getWarningDinner() {
+		return warningDinner;
+	}
+	public void setWarningDinner(String warningDinner) {
+		this.warningDinner = warningDinner;
+	}
+	public String getWarningLunch() {
+		return warningLunch;
+	}
+	public void setWarningLunch(String warningLunch) {
+		this.warningLunch = warningLunch;
+	}
+	public String getWarningBreakfast() {
+		return warningBreakfast;
+	}
+	public void setWarningBreakfast(String warningBreakfast) {
+		this.warningBreakfast = warningBreakfast;
+	}
 	public String getErrorDinner() {
 		return errorDinner;
 	}

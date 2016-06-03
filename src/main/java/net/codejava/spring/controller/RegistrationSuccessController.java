@@ -13,13 +13,13 @@ import net.codejava.spring.model.NutritionDetail;
 import net.codejava.spring.model.User;
 import net.codejava.spring.service.UserRegistrationService;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +30,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 
 public class RegistrationSuccessController {
+	private static Logger LOGGER = LogManager.getLogger(RegistrationSuccessController.class);
+	
 	private static double totalCal=0;
 	private static double totalCalLimit=0;
 	@Autowired
@@ -82,24 +84,25 @@ throw new Exception("Error occured while opening dashboard"+e);
 			@Valid @ModelAttribute("nutrition") NutritionDetail nutrition,BindingResult result ,
 			Map<String, Object> model,HttpSession session)throws Exception{
 			try{
+				nutrition.getBreaskfastList().get(id).setCalories(String.valueOf(0));
 				totalcalories(session, nutrition);
-				if(totalCal<totalCalLimit){
+				//if(totalCal<totalCalLimit){
 					String foodType=nutrition.getBreaskfastList().get(id).getFoodType();
 					String qty=nutrition.getBreaskfastList().get(id).getQty();
 					Nutrition nut=userRegistrationService.fetchcalories(foodType);
 					nut.setQty(qty);
 					nut.setFoodType(foodType);
 					if(nut!=null){
-						if(calculateCalories(nut)){
-							nutrition.getBreaskfastList().get(id).setCalories(nut.getCalories());
-							nutrition.getBreaskfastList().get(id).setFiber(nut.getFiber());	
-						}else{
-							result.rejectValue("errorBreakfast","errorBreakfast.error","Addition of new food type not possible");
+						
+						if(!calculateCalories(nut)){
+							model.put("warningBreakfast","Your daily limit for calories has been exceeded");
 						}
+						nutrition.getBreaskfastList().get(id).setCalories(nut.getCalories());
+						nutrition.getBreaskfastList().get(id).setFiber(nut.getFiber());	
 						
 					}
 					
-				}
+				//}
 				
 					
 				populateUser(nutrition,session);
@@ -127,24 +130,25 @@ throw new Exception("Error occured while opening dashboard"+e);
 			@Valid @ModelAttribute("nutrition") NutritionDetail nutrition,BindingResult result ,
 			Map<String, Object> model,HttpSession session)throws Exception{
 		try{
+			nutrition.getBreaskfastList().get(id).setCalories(String.valueOf(0));
 			totalcalories(session, nutrition);
-			if(totalCal<totalCalLimit){
+			//if(totalCal<totalCalLimit){
 				String foodType=nutrition.getLunchList().get(id).getFoodType();
 				String qty=nutrition.getLunchList().get(id).getQty();
 				Nutrition nut=userRegistrationService.fetchcalories(foodType);
 				nut.setQty(qty);
 				nut.setFoodType(foodType);
 				if(nut!=null){
-					if(calculateCalories(nut)){
-						nutrition.getLunchList().get(id).setCalories(nut.getCalories());
-						nutrition.getLunchList().get(id).setFiber(nut.getFiber());	
-					}else{
-						result.rejectValue("errorLunch","errorLunch.error","Addition of new food type not possible");
+					
+					if(!calculateCalories(nut)){
+						model.put("warningLunch","Your daily limit for calories has been exceeded");
 					}
+					nutrition.getLunchList().get(id).setCalories(nut.getCalories());
+					nutrition.getLunchList().get(id).setFiber(nut.getFiber());	
 					
 				}
 	
-			}
+			//}
 			
 						
 			populateUser(nutrition,session);
@@ -171,22 +175,23 @@ throw new Exception("Error occured while opening dashboard"+e);
 			Map<String, Object> model,HttpSession session)throws Exception{
 		
 		try{
+			nutrition.getBreaskfastList().get(id).setCalories(String.valueOf(0));
 			totalcalories(session, nutrition);
-			if(totalCal<totalCalLimit){
+			//if(totalCal<totalCalLimit){
 				String foodType=nutrition.getDinnerList().get(id).getFoodType();
 				String qty=nutrition.getDinnerList().get(id).getQty();
 				Nutrition nut=userRegistrationService.fetchcalories(foodType);
 				nut.setQty(qty);
 				nut.setFoodType(foodType);
 				if(nut!=null){
-					if(calculateCalories(nut)){
+					
+					if(!calculateCalories(nut)){
+						model.put("warningDinner","Your daily limit for calories has been exceeded");
+					}
 					nutrition.getDinnerList().get(id).setCalories(nut.getCalories());
 					nutrition.getDinnerList().get(id).setFiber(nut.getFiber());
-					}else{
-						result.rejectValue("errorDinner","errorDinner.error","Addition of new food type not possible");
-					}
 				}
-			}
+			//}
 			
 			
 			populateUser(nutrition,session);
@@ -240,20 +245,22 @@ throw new Exception("Error occured while opening dashboard"+e);
 	}
 	
 	
-	private boolean calculateCalories(Nutrition nutrition){
-		
-		int qty=Integer.parseInt(nutrition.getQty());
-		double cal=Double.parseDouble(nutrition.getCalories());
-		double fiber=Double.parseDouble(nutrition.getFiber());
-		double calories=qty*cal;
-		double tot=calories+totalCal;
-		if(tot<totalCalLimit){
-			nutrition.setCalories(String.valueOf(calories));
-			nutrition.setFiber(String.valueOf(fiber));
+	private boolean calculateCalories(Nutrition nutrition) {
+
+		int qty = Integer.parseInt(nutrition.getQty());
+		double cal = Double.parseDouble(nutrition.getCalories());
+		double fiber = Double.parseDouble(nutrition.getFiber());
+		double calories = qty * cal;
+		double tot = calories + totalCal;
+		nutrition.setCalories(String.valueOf(calories));
+		nutrition.setFiber(String.valueOf(fiber));
+		if (tot < totalCalLimit) {
+
 			return true;
+		} else {
+			return false;
 		}
-		else{return false;}  
-	
+
 	}
 	private void populateModel(Map<String, Object> model){
 		List<String> selectbreakfastList=userRegistrationService.fetchFoodType("B");
@@ -318,6 +325,7 @@ throw new Exception("Error occured while opening dashboard"+e);
 	    mav.addObject("exception", exception);
 	    mav.addObject("url", req.getRequestURL());
 	    mav.setViewName("error");
+	    LOGGER.error("Exception occured in dashboard page:"+exception);
 	    return mav;
 	  }
 	
